@@ -41,7 +41,7 @@ def Signup(request):
     print(Name)
     DeviceType=request.POST['DeviceType']
     DeviceToken=request.POST['DeviceToken']
-
+    username=Email
 
     InvitationCode=''
     if len(request.POST.getlist('InvitationCode'))>0:
@@ -50,11 +50,14 @@ def Signup(request):
     if len(request.POST.getlist('Language_id'))>0:
         Language_id=request.POST['Language_id']
 
+    if CustomerModel.objects.filter(mobile_number=MobileNumber):
+        dictV['msg']='phone number already exists'  
+        return Response(dictV)     
 
-    c=CustomerModel.objects.filter(email=Email,is_deleted=False,is_phone_verified=True) #filter the objects who email is exists in db and whoose isdeleted=false,isphoneverified is true.
+    c=CustomerModel.objects.filter(email=Email) #filter the objects who email is exists in db and whoose isdeleted=false,isphoneverified is true.
     print(c)
-    cc=CustomerModel.objects.filter(mobile_number=str(MobileNumber),is_deleted=0,is_phone_verified=1)  #filter the objects from db whoose mobile number is exists in db or not.
-
+    cc=CustomerModel.objects.filter(mobile_number=MobileNumber,is_deleted=0,is_phone_verified=1)  #filter the objects from db whoose mobile number is exists in db or not.
+    print(cc)
 
     #performs validation on email and phone number
     if len(c)>0 or len(cc)>0:
@@ -86,7 +89,7 @@ def Signup(request):
 
         #len of object who has email=email present over the db is 1..therfore if object is not present so its length is 0.if 1==0
         if len(CustomerModel.objects.filter(email=Email))==0 and len(CustomerModel.objects.filter(mobile_number=str(MobileNumber)))==0:
-            c=CustomerModel.objects.create(email=Email,name=Name,mobile_number=str(MobileNumber),device_type=DeviceType,device_token=DeviceToken,phone_otp=PhoneOTP,
+            c=CustomerModel.objects.create(email=Email,username=Email,name=Name,mobile_number=str(MobileNumber),device_type=DeviceType,device_token=DeviceToken,phone_otp=PhoneOTP,
                 language_id=Language_id,invitation_code=InvitationCode)
             c.save()
             cid=c.id  #returns the customer id which is created.
