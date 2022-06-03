@@ -27,3 +27,13 @@ class CustomerLoginSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "password": {"write_only": True},
         }       
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=CustomerModel
+        fields = "__all__"
+        # fields=("email","password")
+        extra_kwargs = {
+            "password": {"write_only": True},
+        }
+        

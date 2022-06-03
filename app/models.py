@@ -23,7 +23,6 @@ class AppUserManager(UserManager):
     def create_user(self, email, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
-        extra_fields.setdefault("username",email)
       
         return self._create_user(email, password, **extra_fields)
 
@@ -50,6 +49,19 @@ class AppUserManager(UserManager):
 
         user = self._create_user(email, password, **extra_fields)
         return user
+
+
+from django.utils.timezone import now
+    
+class Token(models.Model):
+    
+    token = models.CharField(max_length=300)
+    user = models.ForeignKey(to=CustomerModel, on_delete=models.CASCADE)
+    token_type = models.CharField(
+        max_length=20, choices=TOKEN_TYPE_CHOICES
+    )
+    created_on = models.DateTimeField(default=now, null=True, blank=True)
+    expired_on = models.DateTimeField(default=now, null=True, blank=True)
 
 
 class Reasons(models.Model):
@@ -162,3 +174,45 @@ class ProblemOptions(models.Model):
 
     def __str__(self):
         return self.problem_id.name
+
+
+TOKEN_TYPE_CHOICES = (
+    ("verification", "Email Verification"),
+    ("pwd_reset", "Password Reset"),
+)
+
+
+# class Notifications(models.Model):
+#     id=models.AutoField(primary_key=True)
+#     UserType=models.CharField(max_length = 500, blank = True, null = True)
+#     DateSent = models.DateTimeField(default = datetime.utcnow)
+#     Technician_id = models.BigIntegerField(default=0)    
+#     Customer_id=models.BigIntegerField(default=0)
+#     Ticket_id = models.ForeignKey(Tickets,on_delete=models.CASCADE,null=True)
+#     NotificationType=models.CharField(max_length = 500, blank = True, null = True)
+#     title=models.CharField(max_length = 500, blank = True, null = True)
+#     body=models.CharField(max_length = 500, blank = True, null = True)
+    
+# class NotificationsText(models.Model):
+#     id=models.AutoField(primary_key=True)  
+#     Title=models.CharField(max_length = 500, blank = True, null = True)
+#     Type=models.CharField(max_length = 100, blank = True, null = True)
+#     DateAdded= models.DateTimeField(default = datetime.utcnow)
+#     Text=models.CharField(max_length = 1000, blank = True, null = True)
+#     ArabicText=models.CharField(max_length = 1000, blank = True, null = True)
+
+#     def __str__(self):
+#         template = 'Title: {0.Title} Text:  {0.Text}'
+#         return template.format(self)
+    
+class NotificationSettings(models.Model):
+    # id=models.AutoField(primary_key=True)
+    DateUpdated = models.DateTimeField(default = datetime.utcnow)
+    User_id=models.BigIntegerField(default=0)
+    UserType=models.CharField(max_length = 500, blank = True, null = True)
+    Alerts = models.BooleanField(default = True)
+    Informational=models.BooleanField(default = True)
+    Promotional = models.BooleanField(default = True)
+    def __str__(self):
+        template = '{0.UserType} {0.User_id}'
+        return template.format(self)
